@@ -16,3 +16,9 @@
 2. `bun dev`
 3. Para la base de datos: `bunx prisma db push`
 
+## Scrapping
+
+- Fastify y cheerio para obtener datos de propiedades.
+- Usando scraper-api.ts para obtener datos de propiedades.
+
+>Notas: Primeras pruebas de scrapping, esta funcionando pero hace falta pulirlo.
