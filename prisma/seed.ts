@@ -1,85 +1,45 @@
-import { prisma } from '../src/lib/db/prisma';
-import mongoose from 'mongoose';
-import { ScrapedListing, AILog, ScrapingJob } from '../src/models/MongoSchemas';
+import { PrismaClient } from '@prisma/client'
+
+// ELIMINAMOS cualquier objeto de configuración del constructor
+const prisma = new PrismaClient()
 
 async function main() {
-  console.log(' Iniciando el proceso de Seeding...');
+  console.log('🌱 Iniciando seeding...');
 
-  // --- 1. SEED PARA POSTGRESQL (PRISMA) ---
+  await prisma.property.deleteMany({});
+  
   const user = await prisma.user.upsert({
-    where: { email: 'kevinsito@rentvago.com' },
+    where: { email: 'admin@rentvago.com' },
     update: {},
     create: {
-      email: 'kevinsito@rentvago.com',
-      name: 'Kevin Uribe',
-      properties: {
-        create: {
-          title: 'Apartamento en Laureles',
-          address: 'Circular 4 #70-10, Medellín',
-          price: 2800000,
-          leases: {
-            create: {
-              startDate: new Date(),
-              endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-              payments: {
-                create: [
-                  { amount: 2800000, status: 'paid' },
-                  { amount: 2800000, status: 'pending' }
-                ]
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-  console.log('PostgreSQL: Datos de prueba creados.');
-
-  // --- 2. SEED PARA MONGODB (MONGOOSE) ---
-  const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/rentvago_mongo';
-  
-  await mongoose.connect(MONGODB_URI);
-  
-  // Limpiar datos previos en Mongo (Opcional)
-  await ScrapedListing.deleteMany({});
-  
-  await ScrapedListing.create([
-    {
-      title: 'Casa amplia en El Poblado',
-      price: 5000000,
-      source: 'Finca Raíz',
-      url: 'https://ejemplo.com/casa-poblado',
-      location: 'Medellín'
+      email: 'admin@rentvago.com',
+      password: 'password123',
+      name: 'Admin RentVago',
     },
-    {
-      title: 'Estudio moderno en Belén',
-      price: 1500000,
-      source: 'Airbnb',
-      url: 'https://ejemplo.com/estudio-belen',
-      location: 'Medellín'
-    }
-  ]);
+  })
 
-  await AILog.create({
-    action: 'Análisis inicial',
-    modelUsed: 'gemini-1.5-flash',
-    response: { message: "Datos procesados correctamente" }
-  });
+  await prisma.property.createMany({
+    data: [
+      {
+        title: 'Apartamento de Lujo en El Poblado',
+        address: 'Carrera 43A, Medellín',
+        description: 'Hermosa vista y acabados de lujo.',
+        price: 3500000,
+        userId: user.id
+      },
+      {
+        title: 'Casa Campestre en Envigado',
+        address: 'Loma del Escobero',
+        description: 'Ideal para familias grandes.',
+        price: 5200000,
+        userId: user.id
+      }
+    ]
+  })
 
-  await ScrapingJob.create({
-    status: 'completed',
-    itemsFound: 2
-  });
-
-  console.log('MongoDB: Datos de prueba creados.');
-  await mongoose.disconnect();
+  console.log('✅ Base de datos poblada!');
 }
 
 main()
-  .catch((e) => {
-    console.error('Error en el seeding:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch((e) => { console.error(e); process.exit(1) })
+  .finally(async () => { await prisma.$disconnect() })

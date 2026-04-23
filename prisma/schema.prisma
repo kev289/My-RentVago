@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider   = "postgresql"
-  extensions = [vector]
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
 }
 
 model User {
@@ -13,23 +13,24 @@ model User {
   email         String         @unique
   password      String
   name          String?
-  properties    Property[]
-  notifications Notification[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  notifications Notification[]
+  properties    Property[]
 }
 
 model Property {
   id          Int      @id @default(autoincrement())
   title       String
   address     String
-  description String?  @db.Text
+  description String?
   price       Decimal  @db.Decimal(10, 2)
+  image       String?
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  leases      Lease[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  leases      Lease[]
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model Lease {
@@ -37,18 +38,18 @@ model Lease {
   startDate  DateTime
   endDate    DateTime
   propertyId Int
+  createdAt  DateTime  @default(now())
   property   Property  @relation(fields: [propertyId], references: [id])
   payments   Payment[]
-  createdAt  DateTime  @default(now())
 }
 
 model Payment {
   id        Int      @id @default(autoincrement())
   amount    Decimal  @db.Decimal(10, 2)
-  status    String   @default("pending") // pending, paid, overdue
+  status    String   @default("pending")
   leaseId   Int
-  lease     Lease    @relation(fields: [leaseId], references: [id])
   createdAt DateTime @default(now())
+  lease     Lease    @relation(fields: [leaseId], references: [id])
 }
 
 model Notification {
@@ -56,14 +57,14 @@ model Notification {
   message   String
   isRead    Boolean  @default(false)
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Embedding {
-  id        Int                      @id @default(autoincrement())
+  id        Int                    @id @default(autoincrement())
   content   String?
-  embedding Unsupported("vector(768)")?
+  embedding Unsupported("vector")?
 
   @@map("embeddings")
 }
