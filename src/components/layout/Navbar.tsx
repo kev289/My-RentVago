@@ -12,11 +12,11 @@ export default async function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="bg-white p-1 rounded-lg group-hover:scale-110 transition-transform overflow-hidden">
-                <img src="/logo.png" alt="RentVago Logo" className="w-8 h-8 object-contain" />
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="group-hover:scale-105 transition-transform overflow-hidden">
+                <img src="/logo.png" alt="RentVago Logo" width={56} height={56} className="w-14 h-14 object-contain" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-gray-900">RentVago</span>
+              <span className="text-2xl font-bold tracking-tight text-gray-900">RentVago</span>
             </Link>
           </div>
 
