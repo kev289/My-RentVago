@@ -54,3 +54,7 @@ mysql_data/
 
 # Prisma
 /prisma/migrations 
+
+# Apify
+storage/
+crawlee_storage/
